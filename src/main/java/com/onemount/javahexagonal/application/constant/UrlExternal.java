@@ -5,7 +5,9 @@ public class UrlExternal {
     private UrlExternal() {}
 
     public static final String HEALTH_CHECK_URL = "/actuator/health";
-    public static final String USER_PATH ="/api/v1/users";
 
-    public static final String CONTACT_PATH ="/api/v1/contacts";
+    // system
+    public static final String SYSTEM_TIME_PATH = "/api/v1/system/time";
+
+    public static final String USER_PATH ="/api/v1/users";
 }

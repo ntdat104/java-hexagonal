@@ -32,8 +32,6 @@ public class Meta {
     private Integer code;
     private String message;
 
-    private Integer page;
-    private Integer size;
     private Long total;
 
     private List<ErrorViolation> errors;
@@ -57,5 +55,16 @@ public class Meta {
                 .setCode(ErrorConstant.SUCCESS)
                 .setMessage("Success")
                 .setErrors(errors);
+    }
+
+    public static Meta createSuccess(Long total) {
+        return new Meta()
+                .setServiceCode(SERVICE_CODE)
+                .setRequestId(RequestContextUtils.getRequestIdFromAttribute())
+                .setTimestamp(System.currentTimeMillis())
+                .setDatetime(LocalDateTime.now().format(DATE_TIME_FORMATTER))
+                .setCode(ErrorConstant.SUCCESS)
+                .setMessage("Success")
+                .setTotal(total);
     }
 }

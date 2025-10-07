@@ -6,26 +6,24 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+import org.springframework.data.domain.Page;
+
+import java.util.List;
 
 @Getter
 @Setter
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-public class BaseResponse<T> {
+public class BasePageResponse<T> {
 
     private Meta meta;
 
-    private T data;
+    private List<T> data;
 
-    public static <T> BaseResponse<T> ofSucceeded(T data) {
-        return new BaseResponse<T>()
-                .setData(data)
-                .setMeta(Meta.createSuccess());
-    }
-
-    public static <T> BaseResponse<T> ofSucceeded() {
-        return new BaseResponse<T>()
-                .setMeta(Meta.createSuccess());
+    public static <T> BasePageResponse<T> ofSucceeded(Page<T> data) {
+        return new BasePageResponse<T>()
+                .setData(data.getContent())
+                .setMeta(Meta.createSuccess(data.getTotalElements()));
     }
 }

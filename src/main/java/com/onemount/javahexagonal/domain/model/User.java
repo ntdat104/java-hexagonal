@@ -1,8 +1,7 @@
 package com.onemount.javahexagonal.domain.model;
 
+import com.onemount.javahexagonal.application.enums.StatusEnums;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -13,7 +12,6 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 @Table(name = "users", indexes = {
         @Index(columnList = "email"),
-        @Index(columnList = "user_name"),
         @Index(columnList = "phone_number")
 })
 public class User extends BaseModel {
@@ -24,22 +22,12 @@ public class User extends BaseModel {
     @Column(name = "uuid", nullable = false, unique = true)
     private String uuid;
 
-    @Size(min = 1, max = 50)
-    @Column(name = "full_name")
+    @Column(name = "full_name", nullable = false)
     private String fullName;
 
-    @Column(name = "is_male", nullable = false)
-    private boolean isMale;
-
-    @Email
-    @Size(min = 5, max = 254)
-    @Column(name = "email", unique = true)
+    @Column(name = "email", nullable = false, unique = true)
     private String email;
 
-    @Column(name = "user_name", nullable = false, unique = true)
-    private String userName;
-
-    @Size(max = 30)
     @Column(name = "phone_number", nullable = false, unique = true)
     private String phoneNumber;
 
@@ -55,9 +43,6 @@ public class User extends BaseModel {
     @Column(name = "referral_by_code")
     private String referralByCode;
 
-    @Column(name = "permissions", nullable = false)
-    private String permissions;
-
     @Column(name = "status")
-    private String status;
+    private StatusEnums status;
 }

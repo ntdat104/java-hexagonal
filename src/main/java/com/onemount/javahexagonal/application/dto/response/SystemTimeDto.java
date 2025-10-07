@@ -7,25 +7,19 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
+import java.io.Serial;
+import java.io.Serializable;
+
 @Getter
 @Setter
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-public class BaseResponse<T> {
+public class SystemTimeDto implements Serializable {
 
-    private Meta meta;
+    @Serial
+    private static final long serialVersionUID = 1L;
 
-    private T data;
-
-    public static <T> BaseResponse<T> ofSucceeded(T data) {
-        return new BaseResponse<T>()
-                .setData(data)
-                .setMeta(Meta.createSuccess());
-    }
-
-    public static <T> BaseResponse<T> ofSucceeded() {
-        return new BaseResponse<T>()
-                .setMeta(Meta.createSuccess());
-    }
+    private Long timestamp;
+    private String datetime;
 }

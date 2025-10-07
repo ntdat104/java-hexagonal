@@ -1,0 +1,55 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: java-hexagonal
+
+  messages:
+    basename: errors
+    encoding: UTF-8
+
+  datasource:
+    # H2 Database (in-memory)
+    url: jdbc:h2:mem:javahexagonal
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: create-drop
+  h2:
+    console:
+      enabled: true
+
+  # MySQL (optional - uncomment if needed)
+  # datasource:
+  #   url: jdbc:mysql://localhost:3306/springboot
+  #   username: root
+  #   password: mauFJcuf5dhRMQrjj
+  # jpa:
+  #   show-sql: true
+  #   hibernate:
+  #     ddl-auto: create-drop
+  #   properties:
+  #     hibernate:
+  #       dialect: org.hibernate.dialect.MySQL5Dialect
+  #       format_sql: true
+
+  # Async task executor configuration
+  task:
+    execution:
+      thread-name-prefix: "AsyncExecutor-"
+      pool:
+        core-size: 5
+        max-size: 10
+        queue-capacity: 10000
+    scheduling:
+      thread-name-prefix: "core-scheduling-"
+      pool:
+        size: 2
+
+logging:
+  pattern:
+    level: '%5p [${RequestKeyConstant.X_REQUEST_ID:-},%X{requestId}]'
