@@ -1,9 +1,19 @@
 server:
   port: 8080
 
+jwt:
+  secret: "7db95ebb50d1969b9540606cd4366373"   # keep outside source control
+  access-token-expiration-ms: 900000    # 15 minutes
+  refresh-token-expiration-ms: 2592000000  # 30 days (example)
+
 spring:
   application:
     name: java-hexagonal
+
+  security:
+    user:
+      name: ntdat104
+      password: 123
 
   messages:
     basename: errors
