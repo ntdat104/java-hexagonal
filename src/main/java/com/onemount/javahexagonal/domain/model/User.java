@@ -14,7 +14,7 @@ import lombok.experimental.Accessors;
         @Index(columnList = "email"),
         @Index(columnList = "phone_number")
 })
-public class User extends BaseModel {
+public class User extends AbstractModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

@@ -10,10 +10,10 @@ spring:
   application:
     name: java-hexagonal
 
-  security:
-    user:
-      name: ntdat104
-      password: 123
+#  security:
+#    user:
+#      name: ntdat104
+#      password: 123
 
   messages:
     basename: errors

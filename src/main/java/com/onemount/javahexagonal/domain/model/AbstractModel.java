@@ -19,7 +19,7 @@ import java.util.Date;
 @Setter
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
-public class BaseModel implements Serializable {
+public abstract class AbstractModel implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;

@@ -3,6 +3,7 @@ package com.onemount.javahexagonal.interfaces;
 import com.onemount.javahexagonal.application.constant.UrlExternal;
 import com.onemount.javahexagonal.application.dto.response.BaseResponse;
 import com.onemount.javahexagonal.application.service.SystemService;
+import com.onemount.javahexagonal.application.util.ContextUtils;
 import com.onemount.javahexagonal.infrastructure.anotation.LogsActivity;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,6 +26,7 @@ public class SystemController {
 
     @GetMapping("/greet")
     public String greet(HttpServletRequest request) {
+        HttpServletRequest servletRequest = ContextUtils.getCurrentRequest();
         return "Welcome to Java Hexagonal "+request.getSession().getId();
     }
 }

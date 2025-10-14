@@ -12,7 +12,7 @@ import java.time.Instant;
 @Entity
 @Accessors(chain = true)
 @Table(name = "refresh_tokens")
-public class RefreshToken extends BaseModel {
+public class RefreshToken extends AbstractModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
