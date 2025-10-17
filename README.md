@@ -1,1 +1,1 @@
-# Java hexagonal 123
+# Java hexagonal
