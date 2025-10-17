@@ -19,8 +19,8 @@ public class UserController {
     @GetMapping(UrlExternal.USER_PATH)
     public BasePageResponse<?> getUsers(@RequestParam(required = false, defaultValue = "0") Integer page,
                                         @RequestParam(required = false, defaultValue = "10") Integer size,
-                                        @RequestParam(required = false) String sort,
-                                        @RequestParam(required = false) String direction) {
+                                        @RequestParam(required = false, defaultValue = "id") String sort,
+                                        @RequestParam(required = false, defaultValue = "ASC") String direction) {
         return BasePageResponse.ofSucceeded(userService.getUsers(page, size, sort, direction));
     }
 }
