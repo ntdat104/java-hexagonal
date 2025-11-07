@@ -52,8 +52,8 @@ public class Meta {
                 .setRequestId(RequestContextUtils.getRequestIdFromAttribute())
                 .setTimestamp(System.currentTimeMillis())
                 .setDatetime(LocalDateTime.now().format(DATE_TIME_FORMATTER))
-                .setCode(ErrorConstant.SUCCESS)
-                .setMessage("Success")
+                .setCode(code)
+                .setMessage(message)
                 .setErrors(errors);
     }
 

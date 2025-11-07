@@ -7,6 +7,8 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
+import java.util.List;
+
 @Getter
 @Setter
 @Accessors(chain = true)
@@ -27,5 +29,10 @@ public class BaseResponse<T> {
     public static <T> BaseResponse<T> ofSucceeded() {
         return new BaseResponse<T>()
                 .setMeta(Meta.createSuccess());
+    }
+
+    public static <T> BaseResponse<T> ofFailed(int code, String message, List<ErrorViolation> errors) {
+        return new BaseResponse<T>()
+                .setMeta(Meta.createFailed(code, message, errors));
     }
 }

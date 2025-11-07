@@ -1,12 +1,17 @@
 package com.onemount.javahexagonal.interfaces;
 
 import com.onemount.javahexagonal.application.constant.UrlExternal;
+import com.onemount.javahexagonal.application.dto.request.ContactCreateReq;
 import com.onemount.javahexagonal.application.dto.response.BaseResponse;
 import com.onemount.javahexagonal.application.service.SystemService;
 import com.onemount.javahexagonal.application.util.ContextUtils;
 import com.onemount.javahexagonal.infrastructure.anotation.LogsActivity;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -28,5 +33,10 @@ public class SystemController {
     public String greet(HttpServletRequest request) {
         HttpServletRequest servletRequest = ContextUtils.getCurrentRequest();
         return "Welcome to Java Hexagonal "+request.getSession().getId();
+    }
+
+    @PostMapping("/test")
+    public ResponseEntity<?> test(@Valid @RequestBody ContactCreateReq req) {
+        return ResponseEntity.ok().build();
     }
 }

@@ -8,9 +8,8 @@ import lombok.experimental.Accessors;
 @Setter
 @Accessors(chain = true)
 public class ErrorViolation {
-
     private String field;
-    private String code;
+    private Object rejectedValue;
+    private int code;
     private String message;
-
 }

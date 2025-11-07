@@ -1,5 +1,6 @@
 package com.onemount.javahexagonal.application.enums;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import lombok.Getter;
 
 import java.util.Map;
@@ -51,4 +52,14 @@ public enum StatusEnums {
     public static StatusEnums findByValue(String value) {
         return findByValue(value, null);
     }
+
+    @JsonCreator
+    public static StatusEnums from(String value) {
+        try {
+            return StatusEnums.valueOf(value.toUpperCase());
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Status must be ACTIVE or INACTIVE");
+        }
+    }
+
 }

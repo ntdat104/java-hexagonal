@@ -24,9 +24,9 @@ spring:
       name: ntdat104
       password: 123
 
-  messages:
-    basename: errors
-    encoding: UTF-8
+#  messages:
+#    basename: errors
+#    encoding: UTF-8
 
   datasource:
     # H2 Database (in-memory)

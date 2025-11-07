@@ -3,6 +3,8 @@ package com.onemount.javahexagonal.application.dto.request;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import com.onemount.javahexagonal.application.enums.StatusEnums;
+import com.onemount.javahexagonal.infrastructure.anotation.EnumValid;
 import jakarta.validation.constraints.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -14,21 +16,25 @@ import lombok.experimental.Accessors;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class ContactCreateReq extends BaseRequest {
-    @NotBlank(message = "{400001}")
-    @Size(max = 100, message = "{400002}")
+    @NotBlank(message = "400001")
+    @Size(max = 100, message = "400002")
     private String fullName;
 
-    @NotNull(message = "{400003}")
+    @NotNull(message = "400003")
     private Boolean isMale;
 
-    @NotBlank(message = "{400004}")
-    @Email(message = "{400005}")
+    @NotBlank(message = "400004")
+    @Email(message = "400005")
     private String email;
 
-    @NotBlank(message = "{400006}")
-    @Pattern(regexp = "^[0-9]{8,15}$", message = "{400007}")
+    @NotBlank(message = "400006")
+    @Pattern(regexp = "^[0-9]{8,15}$", message = "400007")
     private String phoneNumber;
 
-    @Size(max = 255, message = "{400008}")
+    @Size(max = 255, message = "400008")
     private String imageUrl;
+
+    @NotNull(message = "400008")
+    @EnumValid(enumClass = StatusEnums.class, message = "400007")
+    private String status;
 }

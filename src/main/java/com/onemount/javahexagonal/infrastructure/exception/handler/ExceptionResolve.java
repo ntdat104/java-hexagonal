@@ -3,52 +3,59 @@ package com.onemount.javahexagonal.infrastructure.exception.handler;
 import com.onemount.javahexagonal.application.constant.ErrorConstant;
 import com.onemount.javahexagonal.application.dto.response.BaseResponse;
 import com.onemount.javahexagonal.application.dto.response.ErrorViolation;
-import com.onemount.javahexagonal.infrastructure.exception.BusinessError;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
+import lombok.RequiredArgsConstructor;
+import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-import org.springframework.util.ObjectUtils;
 import org.springframework.validation.BindException;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
+@RequiredArgsConstructor
 @Component
 public class ExceptionResolve {
 
-    protected static Environment env;
+    private final MessageSource messageSource;
 
     public ResponseEntity<BaseResponse<?>> resolveBindException(BindException exception) {
         List<ErrorViolation> errors = exception.getBindingResult().getFieldErrors().stream()
                 .map(e -> {
-                    // Safely get the default message (e.g., "{400001}"), defaulting to a generic code
-                    String rawKey = Optional.ofNullable(e.getDefaultMessage())
-                            .orElse("{" + ErrorConstant.INVALID_PARAMETERS + "}"); // Fallback key
-
-                    // Extract the pure error code (e.g., "400001") by stripping curly braces
-                    String errorCode = rawKey.replaceAll("[{}]", "");
-
-                    // Look up the full error message using the raw key (e.g., "{400001}")
-
+                    var defaultCode = ErrorConstant.INVALID_PARAMETERS;
+                    String rawCode = Optional.ofNullable(e.getDefaultMessage())
+                            .orElse(String.valueOf(defaultCode));
+                    int errorCode = parseErrorCode(rawCode, defaultCode);
                     return new ErrorViolation()
                             .setField(e.getField())
-                            .setCode(errorCode) // Set the clean code
-                            .setMessage(e.getDefaultMessage()); // Set the looked-up message
+                            .setRejectedValue(e.getRejectedValue())
+                            .setCode(errorCode)
+                            .setMessage(getErrorMessage(errorCode));
                 })
                 .toList();
-
-        BusinessError error = BusinessError.getError(ErrorConstant.INVALID_PARAMETERS);
-//        BaseResponse<?> data = ofFailed(error, getMessage(error), errors);
-        return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        var defaultCode = ErrorConstant.INVALID_PARAMETERS;
+        BaseResponse<?> error = BaseResponse.ofFailed(defaultCode, getErrorMessage(defaultCode), errors);
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
-    private int getErrorCode(String errorCode, int errorCodeDefault) {
+    private int parseErrorCode(String value, int defaultValue) {
         try {
-            return Integer.parseInt(errorCode);
-        } catch (NumberFormatException e) {
-            return errorCodeDefault;
+            return Integer.parseInt(value);
+        } catch (Exception e) {
+            return defaultValue;
+        }
+    }
+
+    private String getErrorMessage(int code) {
+        return getErrorMessage(String.valueOf(code));
+    }
+
+    private String getErrorMessage(String code) {
+        try {
+            return messageSource.getMessage(code, null, Locale.getDefault());
+        } catch (Exception e) {
+            return code;
         }
     }
 
