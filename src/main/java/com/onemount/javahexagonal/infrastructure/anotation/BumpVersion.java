@@ -1,0 +1,13 @@
+package com.onemount.javahexagonal.infrastructure.anotation;
+
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+@Target(ElementType.METHOD)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface BumpVersion {
+    String entity();
+    String key();         // Dùng SpEL để trích xuất userId
+}

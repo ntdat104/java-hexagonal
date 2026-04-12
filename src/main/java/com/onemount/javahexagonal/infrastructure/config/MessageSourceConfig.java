@@ -11,11 +11,10 @@ public class MessageSourceConfig {
     @Bean
     public MessageSource messageSource() {
         ReloadableResourceBundleMessageSource messageSource = new ReloadableResourceBundleMessageSource();
-        messageSource.setBasenames(
-                "classpath:errors",     // ✅ loads errors.properties
-                "classpath:messages"    // ✅ optional if you also use messages.properties
-        );
+        messageSource.setBasenames("classpath:errors", "classpath:messages");
         messageSource.setDefaultEncoding("UTF-8");
+        messageSource.setCacheSeconds(3600);
+        messageSource.setFallbackToSystemLocale(false);
         return messageSource;
     }
 }
