@@ -3,6 +3,7 @@ package com.onemount.javahexagonal.infrastructure.anotation.handler;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -19,12 +20,12 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.*;
 
+@RequiredArgsConstructor
 @Aspect
 @Component
 public class LogsActivityHandler {
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
-
+    private final ObjectMapper objectMapper;
     private static final Logger logger = LoggerFactory.getLogger(LogsActivityHandler.class);
 
     public static final String REQUEST_ID = "request_id";

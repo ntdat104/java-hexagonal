@@ -2,8 +2,10 @@ package com.onemount.javahexagonal.interfaces;
 
 import com.onemount.javahexagonal.application.constant.UrlExternal;
 import com.onemount.javahexagonal.application.dto.response.BasePageResponse;
+import com.onemount.javahexagonal.application.dto.response.BaseResponse;
 import com.onemount.javahexagonal.application.service.UserService;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -22,5 +24,11 @@ public class UserController {
                                         @RequestParam(required = false, defaultValue = "id") String sort,
                                         @RequestParam(required = false, defaultValue = "ASC") String direction) {
         return BasePageResponse.ofSucceeded(userService.getUsers(page, size, sort, direction));
+    }
+
+    @PostMapping(UrlExternal.USER_PATH)
+    public BaseResponse<?> clearCache() {
+        userService.clear();
+        return BaseResponse.ofSucceeded();
     }
 }

@@ -1,8 +1,9 @@
 package com.onemount.javahexagonal.infrastructure.anotation.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.onemount.javahexagonal.infrastructure.anotation.AutoVersionCache;
+import com.onemount.javahexagonal.infrastructure.anotation.VersionCache;
 import com.onemount.javahexagonal.infrastructure.anotation.BumpVersion;
+import lombok.RequiredArgsConstructor;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
@@ -18,34 +19,37 @@ import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.stereotype.Component;
 
-import java.time.Duration;
 import java.util.StringJoiner;
+import java.util.concurrent.TimeUnit;
 
+@RequiredArgsConstructor
 @Aspect
 @Component
-public class VersionedCacheAspect {
+public class VersionCacheAspect {
 
     private final StringRedisTemplate redisTemplate;
     private final ObjectMapper objectMapper;
     private final ExpressionParser parser = new SpelExpressionParser();
     private final ParameterNameDiscoverer nameDiscoverer = new DefaultParameterNameDiscoverer();
 
-    public VersionedCacheAspect(StringRedisTemplate redisTemplate, ObjectMapper objectMapper) {
-        this.redisTemplate = redisTemplate;
-        this.objectMapper = objectMapper;
-    }
+    // Hằng số cho thời gian sống của version key (nên dài hơn TTL của data)
+    private static final long VERSION_KEY_TTL_DAYS = 3;
 
     @Around("@annotation(autoCache)")
-    public Object handleRead(ProceedingJoinPoint joinPoint, AutoVersionCache autoCache) throws Throwable {
-        Object userId = parseSpel(joinPoint, autoCache.key());
+    public Object handleRead(ProceedingJoinPoint joinPoint, VersionCache autoCache) throws Throwable {
+        Object userId = parseSpel(joinPoint, autoCache.userId());
         String entity = autoCache.entity();
 
-        // 1. Lấy version
+        // 1. Lấy version hiện tại
         String vKey = "version:" + entity + ":" + userId;
-        String version = redisTemplate.opsForValue().get(vKey) != null ?
-                redisTemplate.opsForValue().get(vKey) : "0";
+        String version = redisTemplate.opsForValue().get(vKey);
+        if (version == null) {
+            version = "0";
+            // Optional: Khởi tạo version nếu chưa có để đồng bộ TTL
+            // redisTemplate.opsForValue().setIfAbsent(vKey, "0", VERSION_KEY_TTL_DAYS, TimeUnit.DAYS);
+        }
 
-        // 2. Xử lý nhiều extraKeys
+        // 2. Xử lý các khóa phụ (Extra Keys)
         String combinedExtraKey = "default";
         if (autoCache.extraKeys().length > 0) {
             StringJoiner joiner = new StringJoiner("_");
@@ -56,28 +60,43 @@ public class VersionedCacheAspect {
             combinedExtraKey = joiner.toString();
         }
 
-        // 3. Tạo final key: wallet:data:1001:0_10_id_desc:v1
+        // 3. Tạo final key: [entity]:data:[userId]:[extra]:v[version]
         String finalCacheKey = String.format("%s:data:%s:%s:v%s",
                 entity, userId, combinedExtraKey, version);
 
-        // 4. Logic check cache và thực thi (như cũ)
+        // 4. Kiểm tra cache
         String cachedValue = redisTemplate.opsForValue().get(finalCacheKey);
         if (cachedValue != null) {
             MethodSignature signature = (MethodSignature) joinPoint.getSignature();
             return objectMapper.readValue(cachedValue, signature.getReturnType());
         }
 
+        // 5. Cache miss: Thực thi method gốc
         Object result = joinPoint.proceed();
+
         if (result != null) {
-            redisTemplate.opsForValue().set(finalCacheKey, objectMapper.writeValueAsString(result), Duration.ofHours(1));
+            String jsonResult = objectMapper.writeValueAsString(result);
+            redisTemplate.opsForValue().set(
+                    finalCacheKey,
+                    jsonResult,
+                    autoCache.ttl(),
+                    autoCache.unit()
+            );
         }
         return result;
     }
 
     @AfterReturning("@annotation(bump)")
     public void handleWrite(JoinPoint joinPoint, BumpVersion bump) {
-        Object userId = parseSpel(joinPoint, bump.key());
-        redisTemplate.opsForValue().increment("version:" + bump.entity() + ":" + userId);
+        Object userId = parseSpel(joinPoint, bump.userId());
+        String vKey = "version:" + bump.entity() + ":" + userId;
+
+        // Tăng version lên 1 đơn vị
+        redisTemplate.opsForValue().increment(vKey);
+
+        // QUAN TRỌNG: Thiết lập hoặc gia hạn TTL cho version key
+        // Điều này đảm bảo key version không tồn tại vĩnh viễn
+        redisTemplate.expire(vKey, VERSION_KEY_TTL_DAYS, TimeUnit.DAYS);
     }
 
     private Object parseSpel(JoinPoint joinPoint, String expression) {

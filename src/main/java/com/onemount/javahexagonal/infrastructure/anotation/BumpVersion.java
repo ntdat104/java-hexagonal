@@ -9,5 +9,5 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface BumpVersion {
     String entity();
-    String key();         // Dùng SpEL để trích xuất userId
+    String userId();
 }

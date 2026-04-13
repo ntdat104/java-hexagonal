@@ -15,7 +15,7 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/**", "/test/**").permitAll()      // Public endpoints
+                        .requestMatchers("/auth/**", "/test/**", "/api/v1/users/**").permitAll()      // Public endpoints
                         .anyRequest().authenticated()                 // Other endpoints require authentication
                 )
                 .httpBasic(httpBasic -> httpBasic.disable())
