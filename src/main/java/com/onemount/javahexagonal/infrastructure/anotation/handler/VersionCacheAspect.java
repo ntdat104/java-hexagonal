@@ -3,7 +3,9 @@ package com.onemount.javahexagonal.infrastructure.anotation.handler;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.onemount.javahexagonal.infrastructure.anotation.VersionCache;
 import com.onemount.javahexagonal.infrastructure.anotation.BumpVersion;
+import com.onemount.javahexagonal.infrastructure.config.RedisPubSubConfig;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
@@ -22,10 +24,13 @@ import org.springframework.stereotype.Component;
 import java.util.StringJoiner;
 import java.util.concurrent.TimeUnit;
 
-@RequiredArgsConstructor
+@Slf4j
 @Aspect
 @Component
+@RequiredArgsConstructor
 public class VersionCacheAspect {
+
+    private final Boolean IS_ENABLED_LOGGING = true;
 
     private final StringRedisTemplate redisTemplate;
     private final ObjectMapper objectMapper;
@@ -47,47 +52,59 @@ public class VersionCacheAspect {
 
         String vKey = buildVersionKey(entity, userId);
 
-        // 🔥 1. Lấy version từ local cache
-        String version = localCache.get(vKey);
+        try {
+            // 🔥 1. Lấy version từ local cache
+            String version = localCache.get(vKey);
 
-        if (version == null) {
-            // 🔥 2. fallback Redis
-            version = redisTemplate.opsForValue().get(vKey);
+            if (version != null) {
+                logHit("LOCAL_VERSION_HIT", vKey);
+            } else {
+                // 🔥 2. fallback Redis
+                version = redisTemplate.opsForValue().get(vKey);
 
-            if (version == null) {
-                version = "0";
+                if (version == null) {
+                    version = "0";
+                }
+
+                // 🔥 3. lưu local
+                localCache.put(vKey, version);
+                logHit("REDIS_VERSION_HIT", vKey);
             }
 
-            // 🔥 3. lưu local
-            localCache.put(vKey, version);
+            // 4. build extra key
+            String extraKey = buildExtraKey(joinPoint, autoCache.extraKeys());
+
+            // 5. final cache key
+            String finalKey = buildDataKey(entity, userId, extraKey, version);
+
+            // 6. check Redis cache
+            String cachedValue = redisTemplate.opsForValue().get(finalKey);
+            if (cachedValue != null) {
+                logHit("DATA_CACHE_HIT", finalKey);
+                MethodSignature signature = (MethodSignature) joinPoint.getSignature();
+                return objectMapper.readValue(cachedValue, signature.getReturnType());
+            }
+
+            logMiss(finalKey);
+
+            // 7. cache miss
+            Object result = joinPoint.proceed();
+
+            if (result != null) {
+                redisTemplate.opsForValue().set(
+                        finalKey,
+                        objectMapper.writeValueAsString(result),
+                        autoCache.ttl(),
+                        autoCache.unit()
+                );
+            }
+
+            return result;
+        } catch (Exception ex) {
+            // 🔥 fallback
+            logFallback(ex);
+            return joinPoint.proceed();
         }
-
-        // 4. build extra key
-        String extraKey = buildExtraKey(joinPoint, autoCache.extraKeys());
-
-        // 5. final cache key
-        String finalKey = buildDataKey(entity, userId, extraKey, version);
-
-        // 6. check Redis cache
-        String cachedValue = redisTemplate.opsForValue().get(finalKey);
-        if (cachedValue != null) {
-            MethodSignature signature = (MethodSignature) joinPoint.getSignature();
-            return objectMapper.readValue(cachedValue, signature.getReturnType());
-        }
-
-        // 7. cache miss
-        Object result = joinPoint.proceed();
-
-        if (result != null) {
-            redisTemplate.opsForValue().set(
-                    finalKey,
-                    objectMapper.writeValueAsString(result),
-                    autoCache.ttl(),
-                    autoCache.unit()
-            );
-        }
-
-        return result;
     }
 
     // ================= WRITE =================
@@ -99,16 +116,19 @@ public class VersionCacheAspect {
 
         String vKey = buildVersionKey(entity, userId);
 
-        // 🔥 1. increment Redis
-        Long newVersion = redisTemplate.opsForValue().increment(vKey);
+        try {
+            // 🔥 1. increment Redis
+            Long newVersion = redisTemplate.opsForValue().increment(vKey);
 
-        redisTemplate.expire(vKey, VERSION_KEY_TTL_DAYS, TimeUnit.DAYS);
+            redisTemplate.expire(vKey, VERSION_KEY_TTL_DAYS, TimeUnit.DAYS);
 
-        // 🔥 2. update local ngay (QUAN TRỌNG)
-        if (newVersion != null) {
-            localCache.put(vKey, String.valueOf(newVersion));
-        } else {
-            localCache.invalidate(vKey);
+            // 🔥 2. Broadcast invalidate event tới tất cả instances qua Pub/Sub
+            // Subscriber trên mỗi instance (kể cả chính nó) sẽ tự invalidate local cache
+            redisTemplate.convertAndSend(RedisPubSubConfig.VERSION_INVALIDATE_CHANNEL, vKey);
+
+            log.info("[CACHE_BUMP] key={}, version={}", vKey, newVersion);
+        } catch (Exception ex) {
+            logFallback(ex);
         }
     }
 
@@ -150,5 +170,23 @@ public class VersionCacheAspect {
         );
 
         return parser.parseExpression(expression).getValue(context);
+    }
+
+    // ================= LOGGING =================
+
+    private void logHit(String type, String key) {
+        if (IS_ENABLED_LOGGING) {
+            log.info("[CACHE_{}] key={}", type, key);
+        }
+    }
+
+    private void logMiss(String key) {
+        if (IS_ENABLED_LOGGING) {
+            log.info("[CACHE_MISS] key={}", key);
+        }
+    }
+
+    private void logFallback(Exception ex) {
+        log.error("[CACHE_FALLBACK] Redis error → fallback to DB", ex);
     }
 }
