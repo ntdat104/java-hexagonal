@@ -1,0 +1,33 @@
+version: "3.9"
+
+services:
+  redis:
+    image: redis:7
+    container_name: redis
+    restart: always
+    command: ["redis-server", "--appendonly", "yes"]
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - java-hexagonal
+
+  redisinsight:
+    image: redis/redisinsight:2.70
+    container_name: redisinsight
+    restart: always
+    ports:
+      - "5540:5540"
+    volumes:
+      - redisinsight_data:/db
+    networks:
+      - java-hexagonal
+
+volumes:
+  redis_data:
+  redisinsight_data:
+
+networks:
+  java-hexagonal:
+    driver: bridge
