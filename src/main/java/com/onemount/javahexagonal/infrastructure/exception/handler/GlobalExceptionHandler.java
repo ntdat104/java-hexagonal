@@ -19,4 +19,10 @@ public class GlobalExceptionHandler {
     public ResponseEntity<BaseResponse<?>> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
         return exceptionResolve.resolveBindException(ex);
     }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<BaseResponse<?>> handleIllegalArgument(IllegalArgumentException ex) {
+        return new ResponseEntity<>(BaseResponse.ofFailed(0, ex.getMessage(), null),
+                org.springframework.http.HttpStatus.BAD_REQUEST);
+    }
 }

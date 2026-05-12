@@ -14,7 +14,6 @@ import lombok.experimental.Accessors;
 @Setter
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class ContactCreateReq extends BaseRequest {
     @NotBlank(message = "400001")
     @Size(max = 100, message = "400002")

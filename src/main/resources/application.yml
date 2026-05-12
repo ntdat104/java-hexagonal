@@ -20,6 +20,7 @@ spring:
     type: none # disable default, we use custom composite
 
   security:
+    enabled: false
     user:
       name: ntdat104
       password: 123

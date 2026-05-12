@@ -17,7 +17,6 @@ import java.util.List;
 @Setter
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class Meta {
 
     public static final String SERVICE_CODE = "JAVA_HEXAGONAL";

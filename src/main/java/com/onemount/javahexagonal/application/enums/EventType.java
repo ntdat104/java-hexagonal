@@ -1,0 +1,5 @@
+package com.onemount.javahexagonal.application.enums;
+public enum EventType {
+    SESSION_CREATED, SESSION_STEP_STARTED, SESSION_STEP_COMPLETED,
+    SESSION_STEP_FAILED, SESSION_COMPLETED, SESSION_EXPIRED, SESSION_ABORTED
+}
