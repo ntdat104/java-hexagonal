@@ -120,6 +120,7 @@ public class SessionController {
         resp.put("session_id",          session.getId());
         resp.put("status",              session.getStatus());
         resp.put("current_node_id",     session.getCurrentNodeId());
+        resp.put("current_node",        nodeMap.get(session.getCurrentNodeId()));
         resp.put("active_node_ids",     activeIds);
         resp.put("pending_user_steps",  pendingUserSteps);
         resp.put("waiting",             waiting);

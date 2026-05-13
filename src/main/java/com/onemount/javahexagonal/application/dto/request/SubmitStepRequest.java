@@ -12,8 +12,8 @@ import java.util.Map;
 
 @Getter @Setter @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 @JsonIgnoreProperties(ignoreUnknown = true)
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class SubmitStepRequest extends BaseRequest {
 
     // Optional: which node this submission is for (required when multiple steps are pending)

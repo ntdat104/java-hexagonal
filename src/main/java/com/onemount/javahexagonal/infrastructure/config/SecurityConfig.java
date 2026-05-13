@@ -15,9 +15,12 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/**", "/test/**", "/api/v1/users/**").permitAll()      // Public endpoints
-                        .anyRequest().authenticated()                 // Other endpoints require authentication
+                        .anyRequest().permitAll() // This allows all requests without auth
                 )
+                // .authorizeHttpRequests(auth -> auth
+                //         .requestMatchers("/auth/**", "/test/**", "/api/v1/users/**").permitAll()      // Public endpoints
+                //         .anyRequest().authenticated()                 // Other endpoints require authentication
+                // )
                 .httpBasic(httpBasic -> httpBasic.disable())
                 .formLogin(form -> form.disable());
 

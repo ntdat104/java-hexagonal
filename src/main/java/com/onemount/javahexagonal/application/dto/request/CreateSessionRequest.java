@@ -15,8 +15,8 @@ import java.util.Map;
 
 @Getter @Setter @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 @JsonIgnoreProperties(ignoreUnknown = true)
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class CreateSessionRequest extends BaseRequest {
 
     @NotNull(message = "400011")

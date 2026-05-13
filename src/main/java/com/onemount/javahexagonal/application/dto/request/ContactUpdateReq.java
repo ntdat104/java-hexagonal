@@ -12,6 +12,7 @@ import lombok.experimental.Accessors;
 @Setter
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class ContactUpdateReq extends BaseRequest {
     @NotNull(message = "{400009}")
     private Long id;

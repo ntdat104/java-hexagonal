@@ -11,6 +11,7 @@ import lombok.experimental.Accessors;
 @Setter
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class ErrorViolation {
     private String field;
     private Object rejectedValue;

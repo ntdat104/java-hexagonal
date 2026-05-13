@@ -14,6 +14,7 @@ import java.io.Serializable;
 @Setter
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class SystemTimeDto implements Serializable {
 
     @Serial

@@ -17,8 +17,8 @@ import java.util.Map;
 
 @Getter @Setter @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 @JsonIgnoreProperties(ignoreUnknown = true)
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class CreateWorkflowRequest extends BaseRequest {
 
     @NotNull(message = "400011")
@@ -41,8 +41,8 @@ public class CreateWorkflowRequest extends BaseRequest {
     // ─── Nested DTOs ─────────────────────────────────────────────────────────
 
     @Getter @Setter
-    @JsonIgnoreProperties(ignoreUnknown = true)
     @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public static class DefinitionDto {
 
         @NotBlank(message = "400020")
@@ -57,6 +57,7 @@ public class CreateWorkflowRequest extends BaseRequest {
     }
 
     @Getter @Setter
+    @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class NodeDto {
 
@@ -68,11 +69,15 @@ public class CreateWorkflowRequest extends BaseRequest {
 
         private String executionMode;
         private Map<String, Object> config;
+        private Map<String, Object> retryPolicy;
+        private Map<String, Object> inputSchema;
+        private Map<String, Object> outputSchema;
         private Map<String, InputMapEntryDto> inputMap;
         private List<FallbackCaseDto> fallbackChain;
     }
 
     @Getter @Setter
+    @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class EdgeDto {
 
@@ -88,6 +93,7 @@ public class CreateWorkflowRequest extends BaseRequest {
     }
 
     @Getter @Setter
+    @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class InputMapEntryDto {
         private String type;      // SESSION_INPUT | NODE_OUTPUT | TENANT_CONFIG | CONFIG_VALUE
@@ -98,6 +104,7 @@ public class CreateWorkflowRequest extends BaseRequest {
     }
 
     @Getter @Setter
+    @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class FallbackCaseDto {
         private String name;
